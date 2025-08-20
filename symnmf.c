@@ -423,6 +423,7 @@ void print_matrix(matrix mat, int rows, int cols)
 
 int main(int argc, char *argv[])
 {
+    // TODO delete tests from main
     if (argc == 2 && strcmp(argv[1], "test") == 0)
     {
         // Test mode for file parsing
@@ -731,29 +732,11 @@ int main(int argc, char *argv[])
     matrix result = NULL;
 
     if (strcmp(goal, "sym") == 0)
-    {
         result = sym_func(datapoints, n, d);
-        if (result)
-        {
-            print_matrix(result, n, n);
-        }
-    }
     else if (strcmp(goal, "ddg") == 0)
-    {
         result = ddg_func(datapoints, n, d);
-        if (result)
-        {
-            print_matrix(result, n, n);
-        }
-    }
     else if (strcmp(goal, "norm") == 0)
-    {
         result = norm_func(datapoints, n, d);
-        if (result)
-        {
-            print_matrix(result, n, n);
-        }
-    }
     else
     {
         print_error();
@@ -761,7 +744,9 @@ int main(int argc, char *argv[])
         return ERROR;
     }
 
-    if (!result)
+    if (result)
+        print_matrix(result, n, n);
+    else
     {
         print_error();
         free_matrix(datapoints);
