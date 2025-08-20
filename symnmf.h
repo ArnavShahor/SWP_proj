@@ -10,9 +10,11 @@
 
 typedef double **matrix;
 
-extern const int SUCCESS;
-extern const int ERROR;
-extern const char *GENERIC_ERROR_MSG;
+#define SUCCESS 0
+#define ERROR 1
+#define GENERIC_ERROR_MSG "An Error Has Occurred"
+
+// TODO should we filter header file and keep only module-related functions?
 
 /* Error handling */
 void print_error(void);

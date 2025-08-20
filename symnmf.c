@@ -2,10 +2,6 @@
 #include <string.h>
 #include "symnmf.h"
 
-const int SUCCESS = 0;
-const int ERROR = 1;
-const char *GENERIC_ERROR_MSG = "An Error Has Occurred";
-
 void print_error()
 {
     printf("%s\n", GENERIC_ERROR_MSG);
