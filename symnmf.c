@@ -153,7 +153,7 @@ double euclidean_distance_squared(double *p1, double *p2, int d)
     return sum;
 }
 
-matrix calc_sym_mat(matrix datapoints, int n, int d)
+matrix sym_func(matrix datapoints, int n, int d)
 {
     matrix A = alloc_matrix(n, n);
     if (!A)
@@ -173,34 +173,7 @@ matrix calc_sym_mat(matrix datapoints, int n, int d)
     return A;
 }
 
-matrix create_diagonal_matrix(matrix A, int n) {
-    matrix D = alloc_matrix(n, n);
-    if (!D)
-        return NULL;
-
-    for (int i = 0; i < n; i++) {
-        double degree = 0.0;
-        for (int j = 0; j < n; j++) {
-            degree += A[i][j];
-        }
-        D[i][i] = degree;
-    }
-
-    return D;
-}
-
-matrix ddg_func(matrix datapoints, int n, int d) {
-    matrix A = calc_sym_mat(datapoints, n, d);
-    if (!A)
-        return NULL;
-
-    matrix D = create_diagonal_matrix(A, n);
-
-    free_matrix(A);
-    return D;
-}
-
-double* calculate_degrees_array(matrix A, int n) {
+double *calculate_degrees_array(matrix A, int n) {
     double *degrees = (double *)malloc(n * sizeof(double));
     if (!degrees)
         return NULL;
@@ -214,8 +187,43 @@ double* calculate_degrees_array(matrix A, int n) {
 
     return degrees;
 }
-void normalize_degrees(double *degrees, int n) {
+
+matrix create_diagonal_matrix(double *degrees, int n) {
+    matrix D = alloc_matrix(n, n);
+    if (!D)
+        return NULL;
+
     for (int i = 0; i < n; i++) {
+        D[i][i] = degrees[i];
+    }
+
+    return D;
+}
+
+matrix ddg_func(matrix datapoints, int n, int d)
+{
+    matrix A = sym_func(datapoints, n, d);
+    if (!A)
+        return NULL;
+
+    double *degrees = calculate_degrees_array(A, n);
+    if (!degrees)
+    {
+        free_matrix(A);
+        return NULL;
+    }
+
+    matrix D = create_diagonal_matrix(degrees, n);
+
+    free_matrix(A);
+    free(degrees);
+    return D;
+}
+
+void normalize_degrees(double *degrees, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
         degrees[i] = pow(degrees[i], -0.5);
     }
 }
@@ -237,13 +245,15 @@ matrix create_normalized_matrix(matrix A, double *degrees, int n)
     return W;
 }
 
-matrix norm_func(matrix datapoints, int n, int d) {
-    matrix A = calc_sym_mat(datapoints, n, d);
+matrix norm_func(matrix datapoints, int n, int d)
+{
+    matrix A = sym_func(datapoints, n, d);
     if (!A)
         return NULL;
 
     double *degrees = calculate_degrees_array(A, n);
-    if (!degrees) {
+    if (!degrees)
+    {
         free_matrix(A);
         return NULL;
     }
@@ -426,52 +436,268 @@ void print_matrix(matrix mat, int rows, int cols)
     }
 }
 
-int main(int argc, char *argv[])
-{
-    if (argc == 2 && strcmp(argv[1], "test") == 0)
-    {
-        // Test mode
+int main(int argc, char *argv[]) {
+    if (argc == 2 && strcmp(argv[1], "test") == 0) {
+        // Test mode for file parsing
         const char *test_file = "tests/input_1.txt";
         int n, d;
-
+        
         printf("Testing file parsing with %s\n", test_file);
-
-        // Test dimension counting
+        
         d = count_dimensions(test_file);
         printf("Dimensions: %d\n", d);
-
-        // Test line counting
+        
         n = count_lines(test_file);
         printf("Lines: %d\n", n);
-
-        // Test parsing
+        
         matrix data = parse_file(test_file, &n, &d);
-        if (!data)
-        {
+        if (!data) {
             print_error();
             return ERROR;
         }
-
+        
         printf("Successfully parsed %dx%d matrix\n", n, d);
         printf("First 5 rows:\n");
-        for (int i = 0; i < 5 && i < n; i++)
-        {
-            for (int j = 0; j < d; j++)
-            {
+        for (int i = 0; i < 5 && i < n; i++) {
+            for (int j = 0; j < d; j++) {
                 printf("%.4f", data[i][j]);
-                if (j < d - 1)
-                    printf(",");
+                if (j < d - 1) printf(",");
             }
             printf("\n");
         }
-
+        
         free_matrix(data);
         printf("Test completed successfully!\n");
         return SUCCESS;
     }
+    
+    if (argc == 2 && strcmp(argv[1], "small") == 0) {
+        // Test with specific small matrix A
+        printf("Testing with hardcoded 6x6 matrix A:\n");
+        printf("A = [0 1 0 0 1 0]\n");
+        printf("    [1 0 1 0 1 0]\n");
+        printf("    [0 1 0 1 0 0]\n");
+        printf("    [0 0 1 0 1 1]\n");
+        printf("    [1 1 0 1 0 0]\n");
+        printf("    [0 0 0 1 0 0]\n\n");
+        
+        int n = 6;
+        matrix A = alloc_matrix(n, n);
+        if (!A) {
+            print_error();
+            return ERROR;
+        }
+        
+        // Initialize the matrix A with your values
+        int A_values[6][6] = {
+            {0, 1, 0, 0, 1, 0},
+            {1, 0, 1, 0, 1, 0},
+            {0, 1, 0, 1, 0, 0},
+            {0, 0, 1, 0, 1, 1},
+            {1, 1, 0, 1, 0, 0},
+            {0, 0, 0, 1, 0, 0}
+        };
+        
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                A[i][j] = (double)A_values[i][j];
+            }
+        }
+        
+        printf("=== Matrix A ===\n");
+        print_matrix(A, n, n);
+        printf("\n");
+        
+        // Test degree calculation
+        printf("=== Degrees Calculation (section 1.2) ===\n");
+        double *degrees = calculate_degrees_array(A, n);
+        if (!degrees) {
+            print_error();
+            free_matrix(A);
+            return ERROR;
+        }
+        
+        printf("Degrees for each node: ");
+        for (int i = 0; i < n; i++) {
+            printf("%.0f ", degrees[i]);
+        }
+        printf("\n");
+        
+        // Create diagonal degree matrix D
+        matrix D = create_diagonal_matrix(degrees, n);
+        if (!D) {
+            print_error();
+            free_matrix(A);
+            free(degrees);
+            return ERROR;
+        }
+        
+        printf("\nDiagonal Degree Matrix D:\n");
+        print_matrix(D, n, n);
+        printf("\n");
+        
+        // Test normalization
+        printf("=== Normalized Matrix W (section 1.3) ===\n");
+        double *norm_degrees = calculate_degrees_array(A, n);
+        if (!norm_degrees) {
+            print_error();
+            free_matrix(A);
+            free_matrix(D);
+            free(degrees);
+            return ERROR;
+        }
+        
+        normalize_degrees(norm_degrees, n);
+        printf("D^(-1/2) values: ");
+        for (int i = 0; i < n; i++) {
+            printf("%.4f ", norm_degrees[i]);
+        }
+        printf("\n");
+        
+        matrix W = create_normalized_matrix(A, norm_degrees, n);
+        if (!W) {
+            print_error();
+            free_matrix(A);
+            free_matrix(D);
+            free(degrees);
+            free(norm_degrees);
+            return ERROR;
+        }
+        
+        printf("\nNormalized Similarity Matrix W:\n");
+        print_matrix(W, n, n);
+        printf("\n");
+        
+        // Cleanup
+        free_matrix(A);
+        free_matrix(D);
+        free_matrix(W);
+        free(degrees);
+        free(norm_degrees);
+        
+        printf("Small matrix test completed successfully!\n");
+        return SUCCESS;
+    }
+    
+    if (argc == 2 && strcmp(argv[1], "matrices") == 0) {
+        // Test matrix calculations (sections 1.1-1.3)
+        const char *test_file = "tests/input_1.txt";
+        int n, d;
+        
+        printf("Testing matrix calculations with %s\n\n", test_file);
+        
+        // Parse data
+        matrix data = parse_file(test_file, &n, &d);
+        if (!data) {
+            print_error();
+            return ERROR;
+        }
+        
+        printf("Loaded %dx%d datapoints matrix\n\n", n, d);
+        
+        // Test 1.1: Similarity Matrix A
+        printf("=== Testing Similarity Matrix A (section 1.1) ===\n");
+        matrix A = sym_func(data, n, d);
+        if (!A) {
+            print_error();
+            free_matrix(data);
+            return ERROR;
+        }
+        
+        printf("Similarity matrix A (%dx%d):\n", n, n);
+        printf("First 5x5 submatrix:\n");
+        for (int i = 0; i < 5 && i < n; i++) {
+            for (int j = 0; j < 5 && j < n; j++) {
+                printf("%.4f ", A[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+        
+        // Test 1.2: Diagonal Degree Matrix D
+        printf("=== Testing Diagonal Degree Matrix D (section 1.2) ===\n");
+        double *degrees = calculate_degrees_array(A, n);
+        if (!degrees) {
+            print_error();
+            free_matrix(data);
+            free_matrix(A);
+            return ERROR;
+        }
+        
+        matrix D = create_diagonal_matrix(degrees, n);
+        if (!D) {
+            print_error();
+            free_matrix(data);
+            free_matrix(A);
+            free(degrees);
+            return ERROR;
+        }
+        
+        printf("Diagonal degree matrix D (%dx%d):\n", n, n);
+        printf("First 5 diagonal elements: ");
+        for (int i = 0; i < 5 && i < n; i++) {
+            printf("%.4f ", D[i][i]);
+        }
+        printf("\n");
+        printf("Degrees array (first 5): ");
+        for (int i = 0; i < 5 && i < n; i++) {
+            printf("%.4f ", degrees[i]);
+        }
+        printf("\n\n");
+        
+        // Test 1.3: Normalized Similarity Matrix W
+        printf("=== Testing Normalized Similarity Matrix W (section 1.3) ===\n");
+        double *norm_degrees = calculate_degrees_array(A, n);
+        if (!norm_degrees) {
+            print_error();
+            free_matrix(data);
+            free_matrix(A);
+            free_matrix(D);
+            free(degrees);
+            return ERROR;
+        }
+        
+        normalize_degrees(norm_degrees, n);
+        matrix W = create_normalized_matrix(A, norm_degrees, n);
+        if (!W) {
+            print_error();
+            free_matrix(data);
+            free_matrix(A);
+            free_matrix(D);
+            free(degrees);
+            free(norm_degrees);
+            return ERROR;
+        }
+        
+        printf("Normalized similarity matrix W (%dx%d):\n", n, n);
+        printf("First 5x5 submatrix:\n");
+        for (int i = 0; i < 5 && i < n; i++) {
+            for (int j = 0; j < 5 && j < n; j++) {
+                printf("%.4f ", W[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+        
+        printf("D^(-1/2) values (first 5): ");
+        for (int i = 0; i < 5 && i < n; i++) {
+            printf("%.4f ", norm_degrees[i]);
+        }
+        printf("\n\n");
+        
+        // Cleanup
+        free_matrix(data);
+        free_matrix(A);
+        free_matrix(D);
+        free_matrix(W);
+        free(degrees);
+        free(norm_degrees);
+        
+        printf("Matrix calculations test completed successfully!\n");
+        return SUCCESS;
+    }
 
-    if (argc != 3)
-    {
+    if (argc != 3) {
         print_error();
         return ERROR;
     }
@@ -481,47 +707,35 @@ int main(int argc, char *argv[])
 
     int n, d;
     matrix datapoints = parse_file(filename, &n, &d);
-    if (!datapoints)
-    {
+    if (!datapoints) {
         print_error();
         return ERROR;
     }
 
     matrix result = NULL;
 
-    if (strcmp(goal, "sym") == 0)
-    {
-        result = calc_sym_mat(datapoints, n, d);
-        if (result)
-        {
+    if (strcmp(goal, "sym") == 0) {
+        result = sym_func(datapoints, n, d);
+        if (result) {
             print_matrix(result, n, n);
         }
-    }
-    else if (strcmp(goal, "ddg") == 0)
-    {
+    } else if (strcmp(goal, "ddg") == 0) {
         result = ddg_func(datapoints, n, d);
-        if (result)
-        {
+        if (result) {
             print_matrix(result, n, n);
         }
-    }
-    else if (strcmp(goal, "norm") == 0)
-    {
+    } else if (strcmp(goal, "norm") == 0) {
         result = norm_func(datapoints, n, d);
-        if (result)
-        {
+        if (result) {
             print_matrix(result, n, n);
         }
-    }
-    else
-    {
+    } else {
         print_error();
         free_matrix(datapoints);
         return ERROR;
     }
 
-    if (!result)
-    {
+    if (!result) {
         print_error();
         free_matrix(datapoints);
         return ERROR;
