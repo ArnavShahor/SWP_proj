@@ -2,11 +2,24 @@
 #include <string.h>
 #include "symnmf.h"
 
+/**
+ * Prints a generic error message to stdout.
+ *
+ * @return void
+ */
 void print_error()
 {
     printf("%s\n", GENERIC_ERROR_MSG);
 }
 
+/**
+ * Allocates memory for a 2D matrix with specified dimensions.
+ *
+ * @param rows The number of rows in the matrix.
+ * @param cols The number of columns in the matrix.
+ *
+ * @return A pointer to the allocated matrix, or NULL if allocation fails.
+ */
 matrix alloc_matrix(int rows, int cols)
 {
     matrix mat = (matrix)malloc(rows * sizeof(double *));
@@ -28,6 +41,13 @@ matrix alloc_matrix(int rows, int cols)
     return mat;
 }
 
+/**
+ * Frees the memory allocated for a matrix.
+ *
+ * @param mat The matrix to free.
+ *
+ * @return void
+ */
 void free_matrix(matrix mat)
 {
     if (mat)
@@ -37,6 +57,13 @@ void free_matrix(matrix mat)
     }
 }
 
+/**
+ * Counts the number of dimensions (columns) in the first row of a CSV file.
+ *
+ * @param filename The path to the CSV file.
+ *
+ * @return The number of dimensions, or -1 if file cannot be opened.
+ */
 int count_dimensions(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -72,9 +99,16 @@ int count_dimensions(const char *filename)
     return count;
 }
 
+/**
+ * Counts the number of lines in a file.
+ *
+ * @param filename The path to the file.
+ *
+ * @return The number of lines, or -1 if file cannot be opened.
+ */
 int count_lines(const char *filename)
 {
-    // TODO check that we don't misscount the last linebreaks as a point
+    // TODO check that we don't miscount the last linebreaks as a point
     FILE *file = fopen(filename, "r");
     if (!file)
         return -1;
@@ -90,6 +124,15 @@ int count_lines(const char *filename)
     return count;
 }
 
+/**
+ * Parses a CSV file and creates a matrix from its contents.
+ *
+ * @param filename The path to the CSV file.
+ * @param n Pointer to store the number of rows.
+ * @param d Pointer to store the number of columns.
+ *
+ * @return A matrix containing the file data, or NULL if parsing fails.
+ */
 matrix parse_file(const char *filename, int *n, int *d)
 {
     *d = count_dimensions(filename);
@@ -131,6 +174,15 @@ matrix parse_file(const char *filename, int *n, int *d)
     return result;
 }
 
+/**
+ * Calculates the squared Euclidean distance between two points.
+ *
+ * @param p1 The first point vector.
+ * @param p2 The second point vector.
+ * @param d The dimensionality of the points.
+ *
+ * @return The squared Euclidean distance.
+ */
 double euclidean_distance_squared(double *p1, double *p2, int d)
 {
     double sum = 0.0;
@@ -142,6 +194,15 @@ double euclidean_distance_squared(double *p1, double *p2, int d)
     return sum;
 }
 
+/**
+ * Computes the similarity matrix A from datapoints using Gaussian kernel.
+ *
+ * @param datapoints The input data matrix.
+ * @param n The number of datapoints.
+ * @param d The dimensionality of each datapoint.
+ *
+ * @return The similarity matrix A, or NULL if allocation fails.
+ */
 matrix sym_func(matrix datapoints, int n, int d)
 {
     matrix A = alloc_matrix(n, n);
@@ -162,6 +223,14 @@ matrix sym_func(matrix datapoints, int n, int d)
     return A;
 }
 
+/**
+ * Calculates the degree of each vertex by summing the row values.
+ *
+ * @param A The similarity matrix.
+ * @param n The size of the matrix.
+ *
+ * @return An array containing the degrees, or NULL if allocation fails.
+ */
 double *calculate_degrees_array(matrix A, int n)
 {
     double *degrees = (double *)malloc(n * sizeof(double));
@@ -180,6 +249,14 @@ double *calculate_degrees_array(matrix A, int n)
     return degrees;
 }
 
+/**
+ * Creates a diagonal matrix from a degrees array.
+ *
+ * @param degrees Array of degree values.
+ * @param n The size of the matrix.
+ *
+ * @return A diagonal matrix with degrees on the diagonal, or NULL if allocation fails.
+ */
 matrix create_diagonal_matrix(double *degrees, int n)
 {
     matrix D = alloc_matrix(n, n);
@@ -194,6 +271,15 @@ matrix create_diagonal_matrix(double *degrees, int n)
     return D;
 }
 
+/**
+ * Computes the diagonal degree matrix D from datapoints.
+ *
+ * @param datapoints The input data matrix.
+ * @param n The number of datapoints.
+ * @param d The dimensionality of each datapoint.
+ *
+ * @return The diagonal degree matrix D, or NULL if computation fails.
+ */
 matrix ddg_func(matrix datapoints, int n, int d)
 {
     matrix A = sym_func(datapoints, n, d);
@@ -214,6 +300,14 @@ matrix ddg_func(matrix datapoints, int n, int d)
     return D;
 }
 
+/**
+ * Normalizes degrees by raising each to the power of -0.5.
+ *
+ * @param degrees Array of degree values to normalize.
+ * @param n The number of degrees.
+ *
+ * @return void
+ */
 void normalize_degrees(double *degrees, int n)
 {
     for (int i = 0; i < n; i++)
@@ -222,6 +316,15 @@ void normalize_degrees(double *degrees, int n)
     }
 }
 
+/**
+ * Creates a normalized similarity matrix from similarity matrix and normalized degrees.
+ *
+ * @param A The similarity matrix.
+ * @param degrees Array of normalized degree values.
+ * @param n The size of the matrix.
+ *
+ * @return The normalized similarity matrix W, or NULL if allocation fails.
+ */
 matrix create_normalized_matrix(matrix A, double *degrees, int n)
 {
     matrix W = alloc_matrix(n, n);
@@ -239,6 +342,15 @@ matrix create_normalized_matrix(matrix A, double *degrees, int n)
     return W;
 }
 
+/**
+ * Computes the normalized similarity matrix W from datapoints.
+ *
+ * @param datapoints The input data matrix.
+ * @param n The number of datapoints.
+ * @param d The dimensionality of each datapoint.
+ *
+ * @return The normalized similarity matrix W, or NULL if computation fails.
+ */
 matrix norm_func(matrix datapoints, int n, int d)
 {
     matrix A = sym_func(datapoints, n, d);
@@ -260,6 +372,17 @@ matrix norm_func(matrix datapoints, int n, int d)
     return W;
 }
 
+/**
+ * Multiplies two matrices.
+ *
+ * @param A The first matrix.
+ * @param B The second matrix.
+ * @param n1 Number of rows in matrix A.
+ * @param m1 Number of columns in matrix A (must equal rows in B).
+ * @param m2 Number of columns in matrix B.
+ *
+ * @return The product matrix C = A * B, or NULL if allocation fails.
+ */
 matrix matrix_multiply(matrix A, matrix B, int n1, int m1, int m2)
 {
     matrix C = alloc_matrix(n1, m2);
@@ -280,6 +403,15 @@ matrix matrix_multiply(matrix A, matrix B, int n1, int m1, int m2)
     return C;
 }
 
+/**
+ * Transposes a matrix.
+ *
+ * @param A The matrix to transpose.
+ * @param rows The number of rows in matrix A.
+ * @param cols The number of columns in matrix A.
+ *
+ * @return The transposed matrix AT, or NULL if allocation fails.
+ */
 matrix transpose_matrix(matrix A, int rows, int cols)
 {
     matrix AT = alloc_matrix(cols, rows);
@@ -297,6 +429,16 @@ matrix transpose_matrix(matrix A, int rows, int cols)
     return AT;
 }
 
+/**
+ * Calculates the squared F norm of the difference between two matrices.
+ *
+ * @param A The first matrix.
+ * @param B The second matrix.
+ * @param rows The number of rows in both matrices.
+ * @param cols The number of columns in both matrices.
+ *
+ * @return The squared F norm ||A - B||².
+ */
 double F_norm_squared(matrix A, matrix B, int rows, int cols)
 {
     double sum = 0.0;
@@ -311,6 +453,16 @@ double F_norm_squared(matrix A, matrix B, int rows, int cols)
     return sum;
 }
 
+/**
+ * Copies the contents of one matrix to another.
+ *
+ * @param src The source matrix to copy from.
+ * @param dst The destination matrix to copy to.
+ * @param rows The number of rows to copy.
+ * @param cols The number of columns to copy.
+ *
+ * @return void
+ */
 void copy_matrix(matrix src, matrix dst, int rows, int cols)
 {
     for (int i = 0; i < rows; i++)
@@ -322,6 +474,15 @@ void copy_matrix(matrix src, matrix dst, int rows, int cols)
     }
 }
 
+/**
+ * Computes the denominator matrix for H update iteration (H * H^T * H).
+ *
+ * @param H The current H matrix.
+ * @param n The number of rows in H.
+ * @param k The number of columns in H.
+ *
+ * @return The denominator matrix H * H^T * H, or NULL if computation fails.
+ */
 matrix compute_H_denominator(matrix H, int n, int k)
 {
     // TODO should we add epsilon to all of the entries?
@@ -344,6 +505,16 @@ matrix compute_H_denominator(matrix H, int n, int k)
     return H_Ht_H;
 }
 
+/**
+ * Performs one iteration of H matrix update using multiplicative update rule.
+ *
+ * @param H The current H matrix.
+ * @param W The normalized similarity matrix.
+ * @param n The number of rows in H.
+ * @param k The number of columns in H.
+ *
+ * @return The updated H matrix for next iteration, or NULL if computation fails.
+ */
 matrix update_H_iteration(matrix H, matrix W, int n, int k)
 {
     matrix numerator = matrix_multiply(W, H, n, n, k);
@@ -374,6 +545,16 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
     return new_H;
 }
 
+/**
+ * Performs the SymNMF algorithm to factorize W into H * H^T.
+ *
+ * @param H The initial H matrix.
+ * @param W The normalized similarity matrix.
+ * @param n The number of datapoints.
+ * @param k The number of clusters.
+ *
+ * @return The final H matrix after convergence, or NULL if computation fails.
+ */
 matrix symnmf_func(matrix H, matrix W, int n, int k)
 {
     // TODO use origin H instead of copy
@@ -405,6 +586,15 @@ matrix symnmf_func(matrix H, matrix W, int n, int k)
     return current_H;
 }
 
+/**
+ * Prints a matrix to stdout in CSV format.
+ *
+ * @param mat The matrix to print.
+ * @param rows The number of rows in the matrix.
+ * @param cols The number of columns in the matrix.
+ *
+ * @return void
+ */
 void print_matrix(matrix mat, int rows, int cols)
 {
     for (int i = 0; i < rows; i++)

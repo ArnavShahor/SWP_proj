@@ -30,6 +30,16 @@ PyMODINIT_FUNC PyInit_symnmfmodule(void)
     return m;
 }
 
+/**
+ * Fills a C matrix with data from a Python list of lists.
+ *
+ * @param mat The pre-allocated matrix to fill.
+ * @param py_matrix The Python list of lists containing the data.
+ * @param n The number of rows.
+ * @param d The number of columns.
+ *
+ * @return 0 on success, -1 on failure.
+ */
 static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d)
 {
     for (int i = 0; i < n; i++)
@@ -52,6 +62,15 @@ static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d
     return 0;
 }
 
+/**
+ * Converts a Python list of lists to a C matrix.
+ *
+ * @param py_matrix The Python list of lists to convert.
+ * @param n Pointer to store the number of rows.
+ * @param d Pointer to store the number of columns.
+ *
+ * @return A pointer to the allocated matrix, or NULL if conversion fails.
+ */
 static matrix pymat_to_matrix(PyObject *py_matrix, int *n, int *d)
 {
     *n = PyObject_Length(py_matrix);
@@ -79,6 +98,15 @@ static matrix pymat_to_matrix(PyObject *py_matrix, int *n, int *d)
     return mat;
 }
 
+/**
+ * Converts a C matrix to a Python list of lists.
+ *
+ * @param mat The C matrix to convert.
+ * @param rows The number of rows in the matrix.
+ * @param cols The number of columns in the matrix.
+ *
+ * @return A Python list of lists, or NULL if conversion fails.
+ */
 static PyObject *matrix_to_pymat(matrix mat, int rows, int cols)
 {
     PyObject *py_matrix = PyList_New(rows);
@@ -106,6 +134,14 @@ static PyObject *matrix_to_pymat(matrix mat, int rows, int cols)
     return py_matrix;
 }
 
+/**
+ * Python wrapper function for the SymNMF algorithm.
+ *
+ * @param self The module object (unused).
+ * @param args Python tuple containing H and W matrices.
+ *
+ * @return Python list of lists representing the final H matrix, or NULL on error.
+ */
 static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
 {
     PyObject *py_H, *py_W;
@@ -138,6 +174,14 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
     return py_result;
 }
 
+/**
+ * Unified wrapper function for matrix computation functions (sym, ddg, norm).
+ *
+ * @param args Python tuple containing the datapoints matrix.
+ * @param func Pointer to the C function to call (sym_func, ddg_func, or norm_func).
+ *
+ * @return Python list of lists representing the computed matrix, or NULL on error.
+ */
 static PyObject *unified_matrix_wrapper(PyObject *args, matrix (*func)(matrix, int, int))
 {
     int n, d;
@@ -164,16 +208,40 @@ static PyObject *unified_matrix_wrapper(PyObject *args, matrix (*func)(matrix, i
     return py_result;
 }
 
+/**
+ * Python wrapper function for similarity matrix computation.
+ *
+ * @param self The module object (unused).
+ * @param args Python tuple containing the datapoints matrix.
+ *
+ * @return Python list of lists representing the similarity matrix, or NULL on error.
+ */
 static PyObject *sym_wrapper(PyObject *self, PyObject *args)
 {
     return unified_matrix_wrapper(args, sym_func);
 }
 
+/**
+ * Python wrapper function for diagonal degree matrix computation.
+ *
+ * @param self The module object (unused).
+ * @param args Python tuple containing the datapoints matrix.
+ *
+ * @return Python list of lists representing the diagonal degree matrix, or NULL on error.
+ */
 static PyObject *ddg_wrapper(PyObject *self, PyObject *args)
 {
     return unified_matrix_wrapper(args, ddg_func);
 }
 
+/**
+ * Python wrapper function for normalized similarity matrix computation.
+ *
+ * @param self The module object (unused).
+ * @param args Python tuple containing the datapoints matrix.
+ *
+ * @return Python list of lists representing the normalized similarity matrix, or NULL on error.
+ */
 static PyObject *norm_wrapper(PyObject *self, PyObject *args)
 {
     return unified_matrix_wrapper(args, norm_func);
