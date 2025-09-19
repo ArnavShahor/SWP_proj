@@ -670,12 +670,18 @@ void print_matrix(matrix mat, int rows, int cols)
 
 int main(int argc, char *argv[])
 {
+    /* Variables for main logic */
+    char *goal;
+    char *filename;
+    int n, d;
+    matrix datapoints;
+    matrix result;
+
     /* TODO delete tests from main */
     if (argc == 2 && strcmp(argv[1], "test") == 0)
     {
         /* Test mode for file parsing */
         const char *test_file = "tests/input_1.txt";
-        int n, d;
         matrix data;
         int i, j;
 
@@ -715,7 +721,6 @@ int main(int argc, char *argv[])
     if (argc == 2 && strcmp(argv[1], "small") == 0)
     {
         /* Test with specific small matrix A */
-        int n;
         matrix A;
         int A_values[6][6];
         int i, j;
@@ -871,7 +876,6 @@ int main(int argc, char *argv[])
     {
         /* Test matrix calculations (sections 1.1-1.3) */
         const char *test_file = "tests/input_1.txt";
-        int n, d;
         matrix data;
         matrix A;
         double *degrees;
@@ -1012,49 +1016,41 @@ int main(int argc, char *argv[])
         return ERROR;
     }
 
+    goal = argv[1];
+    filename = argv[2];
+
+    datapoints = parse_file(filename, &n, &d);
+    if (!datapoints)
     {
-        char *goal;
-        char *filename;
-        int n, d;
-        matrix datapoints;
-        matrix result;
-
-        goal = argv[1];
-        filename = argv[2];
-
-        datapoints = parse_file(filename, &n, &d);
-        if (!datapoints)
-        {
-            printf("%s\n", GENERIC_ERROR_MSG);
-            return ERROR;
-        }
-
-        result = NULL;
-
-        if (strcmp(goal, "sym") == 0)
-            result = sym_func(datapoints, n, d);
-        else if (strcmp(goal, "ddg") == 0)
-            result = ddg_func(datapoints, n, d);
-        else if (strcmp(goal, "norm") == 0)
-            result = norm_func(datapoints, n, d);
-        else
-        {
-            printf("%s\n", GENERIC_ERROR_MSG);
-            free_matrix(datapoints);
-            return ERROR;
-        }
-
-        if (result)
-            print_matrix(result, n, n);
-        else
-        {
-            printf("%s\n", GENERIC_ERROR_MSG);
-            free_matrix(datapoints);
-            return ERROR;
-        }
-
-        free_matrix(datapoints);
-        free_matrix(result);
-        return SUCCESS;
+        printf("%s\n", GENERIC_ERROR_MSG);
+        return ERROR;
     }
+
+    result = NULL;
+
+    if (strcmp(goal, "sym") == 0)
+        result = sym_func(datapoints, n, d);
+    else if (strcmp(goal, "ddg") == 0)
+        result = ddg_func(datapoints, n, d);
+    else if (strcmp(goal, "norm") == 0)
+        result = norm_func(datapoints, n, d);
+    else
+    {
+        printf("%s\n", GENERIC_ERROR_MSG);
+        free_matrix(datapoints);
+        return ERROR;
+    }
+
+    if (result)
+        print_matrix(result, n, n);
+    else
+    {
+        printf("%s\n", GENERIC_ERROR_MSG);
+        free_matrix(datapoints);
+        return ERROR;
+    }
+
+    free_matrix(datapoints);
+    free_matrix(result);
+    return SUCCESS;
 }
