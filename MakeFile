@@ -1,0 +1,27 @@
+# Makefile for symnmf project
+# Compiles the C executable with required flags
+ 
+CC = gcc
+CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors
+TARGET = symnmf
+SOURCES = symnmf.c
+OBJECTS = symnmf.o
+ 
+# Default target
+all: $(TARGET)
+ 
+# Build the executable
+$(TARGET): $(OBJECTS)
+    $(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+ 
+# Compile source files
+$(OBJECTS): $(SOURCES)
+    $(CC) $(CFLAGS) -c $(SOURCES)
+ 
+# Clean build artifacts
+clean:
+    rm -f $(OBJECTS) $(TARGET)
+ 
+# Phony targets
+.PHONY: all clean
+ 
