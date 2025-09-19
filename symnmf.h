@@ -14,7 +14,7 @@ typedef double **matrix;
 #define ERROR 1
 #define GENERIC_ERROR_MSG "An Error Has Occurred"
 
-// TODO should we filter header file and keep only module-related functions?
+/* TODO should we filter header file and keep only module-related functions? */
 
 /* Error handling */
 void print_error(void);
