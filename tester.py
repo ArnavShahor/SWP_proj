@@ -421,7 +421,7 @@ def test_goal(
 
 
 def test_symnmf_lib():
-    import symnmf_c as symnmf
+    import symnmfmodule as symnmf
 
     test_data = TestData(round=False)
     rng = np.random.default_rng()
