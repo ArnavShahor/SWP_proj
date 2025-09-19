@@ -42,13 +42,13 @@ void normalize_degrees(double *degrees, int n);
 matrix create_normalized_matrix(matrix A, double *degrees, int n);
 
 /* Core SymNMF algorithms */
-matrix sym_func(matrix datapoints, int n, int d);
-matrix ddg_func(matrix datapoints, int n, int d);
-matrix norm_func(matrix datapoints, int n, int d);
+matrix sym_c(matrix datapoints, int n, int d);
+matrix ddg_c(matrix datapoints, int n, int d);
+matrix norm_c(matrix datapoints, int n, int d);
 
 /* SymNMF iteration functions */
 matrix compute_H_denominator(matrix H, int n, int k);
 matrix update_H_iteration(matrix H, matrix W, int n, int k);
-matrix symnmf_func(matrix H, matrix W, int n, int k);
+matrix symnmf_c(matrix H, matrix W, int n, int k);
 
 #endif /* SYMNMF_H */
