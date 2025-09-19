@@ -161,7 +161,7 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    matrix result = symnmf_func(H, W, n, k);
+    matrix result = symnmf_c(H, W, n, k);
     free_matrix(H);
     free_matrix(W);
 
@@ -178,7 +178,7 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
  * Unified wrapper function for matrix computation functions (sym, ddg, norm).
  *
  * @param args Python tuple containing the datapoints matrix.
- * @param func Pointer to the C function to call (sym_func, ddg_func, or norm_func).
+ * @param func Pointer to the C function to call (sym_c, ddg_c, or norm_c).
  *
  * @return Python list of lists representing the computed matrix, or NULL on error.
  */
@@ -218,7 +218,7 @@ static PyObject *unified_matrix_wrapper(PyObject *args, matrix (*func)(matrix, i
  */
 static PyObject *sym_wrapper(PyObject *self, PyObject *args)
 {
-    return unified_matrix_wrapper(args, sym_func);
+    return unified_matrix_wrapper(args, sym_c);
 }
 
 /**
@@ -231,7 +231,7 @@ static PyObject *sym_wrapper(PyObject *self, PyObject *args)
  */
 static PyObject *ddg_wrapper(PyObject *self, PyObject *args)
 {
-    return unified_matrix_wrapper(args, ddg_func);
+    return unified_matrix_wrapper(args, ddg_c);
 }
 
 /**
@@ -244,5 +244,5 @@ static PyObject *ddg_wrapper(PyObject *self, PyObject *args)
  */
 static PyObject *norm_wrapper(PyObject *self, PyObject *args)
 {
-    return unified_matrix_wrapper(args, norm_func);
+    return unified_matrix_wrapper(args, norm_c);
 }

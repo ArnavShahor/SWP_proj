@@ -211,7 +211,7 @@ double euclidean_distance_squared(double *p1, double *p2, int d)
  *
  * @return The similarity matrix A, or NULL if allocation fails.
  */
-matrix sym_func(matrix datapoints, int n, int d)
+matrix sym_c(matrix datapoints, int n, int d)
 {
     matrix A;
     int i, j;
@@ -298,13 +298,13 @@ matrix create_diagonal_matrix(double *degrees, int n)
  *
  * @return The diagonal degree matrix D, or NULL if computation fails.
  */
-matrix ddg_func(matrix datapoints, int n, int d)
+matrix ddg_c(matrix datapoints, int n, int d)
 {
     matrix A;
     double *degrees;
     matrix D;
 
-    A = sym_func(datapoints, n, d);
+    A = sym_c(datapoints, n, d);
     if (!A)
         return NULL;
 
@@ -378,13 +378,13 @@ matrix create_normalized_matrix(matrix A, double *degrees, int n)
  *
  * @return The normalized similarity matrix W, or NULL if computation fails.
  */
-matrix norm_func(matrix datapoints, int n, int d)
+matrix norm_c(matrix datapoints, int n, int d)
 {
     matrix A;
     double *degrees;
     matrix W;
 
-    A = sym_func(datapoints, n, d);
+    A = sym_c(datapoints, n, d);
     if (!A)
         return NULL;
 
@@ -605,7 +605,7 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
  *
  * @return The final H matrix after convergence, or NULL if computation fails.
  */
-matrix symnmf_func(matrix H, matrix W, int n, int k)
+matrix symnmf_c(matrix H, matrix W, int n, int k)
 {
     /* TODO use origin H instead of copy */
     matrix current_H;
@@ -695,11 +695,11 @@ int main(int argc, char *argv[])
     result = NULL;
 
     if (strcmp(goal, "sym") == 0)
-        result = sym_func(datapoints, n, d);
+        result = sym_c(datapoints, n, d);
     else if (strcmp(goal, "ddg") == 0)
-        result = ddg_func(datapoints, n, d);
+        result = ddg_c(datapoints, n, d);
     else if (strcmp(goal, "norm") == 0)
-        result = norm_func(datapoints, n, d);
+        result = norm_c(datapoints, n, d);
     else
     {
         printf("%s\n", GENERIC_ERROR_MSG);
