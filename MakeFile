@@ -12,15 +12,15 @@ all: $(TARGET)
  
 # Build the executable
 $(TARGET): $(OBJECTS)
-    $(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
  
 # Compile source files
 $(OBJECTS): $(SOURCES)
-    $(CC) $(CFLAGS) -c $(SOURCES)
+	$(CC) $(CFLAGS) -c $(SOURCES)
  
 # Clean build artifacts
 clean:
-    rm -f $(OBJECTS) $(TARGET)
+	rm -f $(OBJECTS) $(TARGET)
  
 # Phony targets
 .PHONY: all clean
