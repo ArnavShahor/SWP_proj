@@ -16,9 +16,6 @@ typedef double **matrix;
 
 /* TODO should we filter header file and keep only module-related functions? */
 
-/* Error handling */
-void print_error(void);
-
 /* Matrix memory management */
 matrix alloc_matrix(int rows, int cols);
 void free_matrix(matrix mat);

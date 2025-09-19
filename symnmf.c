@@ -3,16 +3,6 @@
 #include "symnmf.h"
 
 /**
- * Prints a generic error message to stdout.
- *
- * @return void
- */
-void print_error(void)
-{
-    printf("%s\n", GENERIC_ERROR_MSG);
-}
-
-/**
  * Allocates memory for a 2D matrix with specified dimensions.
  *
  * @param rows The number of rows in the matrix.
@@ -700,7 +690,7 @@ int main(int argc, char *argv[])
         data = parse_file(test_file, &n, &d);
         if (!data)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             return ERROR;
         }
 
@@ -746,7 +736,7 @@ int main(int argc, char *argv[])
         A = alloc_matrix(n, n);
         if (!A)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             return ERROR;
         }
 
@@ -775,7 +765,7 @@ int main(int argc, char *argv[])
         degrees = calculate_degrees_array(A, n);
         if (!degrees)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(A);
             return ERROR;
         }
@@ -791,7 +781,7 @@ int main(int argc, char *argv[])
         D = create_diagonal_matrix(degrees, n);
         if (!D)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(A);
             free(degrees);
             return ERROR;
@@ -806,7 +796,7 @@ int main(int argc, char *argv[])
         norm_degrees = calculate_degrees_array(A, n);
         if (!norm_degrees)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(A);
             free_matrix(D);
             free(degrees);
@@ -824,7 +814,7 @@ int main(int argc, char *argv[])
         W = create_normalized_matrix(A, norm_degrees, n);
         if (!W)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(A);
             free_matrix(D);
             free(degrees);
@@ -866,7 +856,7 @@ int main(int argc, char *argv[])
         data = parse_file(test_file, &n, &d);
         if (!data)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             return ERROR;
         }
 
@@ -877,7 +867,7 @@ int main(int argc, char *argv[])
         A = sym_func(data, n, d);
         if (!A)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(data);
             return ERROR;
         }
@@ -899,7 +889,7 @@ int main(int argc, char *argv[])
         degrees = calculate_degrees_array(A, n);
         if (!degrees)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(data);
             free_matrix(A);
             return ERROR;
@@ -908,7 +898,7 @@ int main(int argc, char *argv[])
         D = create_diagonal_matrix(degrees, n);
         if (!D)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(data);
             free_matrix(A);
             free(degrees);
@@ -934,7 +924,7 @@ int main(int argc, char *argv[])
         norm_degrees = calculate_degrees_array(A, n);
         if (!norm_degrees)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(data);
             free_matrix(A);
             free_matrix(D);
@@ -946,7 +936,7 @@ int main(int argc, char *argv[])
         W = create_normalized_matrix(A, norm_degrees, n);
         if (!W)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(data);
             free_matrix(A);
             free_matrix(D);
@@ -988,7 +978,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3)
     {
-        print_error();
+        printf("%s\n", GENERIC_ERROR_MSG);
         return ERROR;
     }
 
@@ -1005,7 +995,7 @@ int main(int argc, char *argv[])
         datapoints = parse_file(filename, &n, &d);
         if (!datapoints)
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             return ERROR;
         }
 
@@ -1019,7 +1009,7 @@ int main(int argc, char *argv[])
             result = norm_func(datapoints, n, d);
     else
     {
-        print_error();
+        printf("%s\n", GENERIC_ERROR_MSG);
         free_matrix(datapoints);
         return ERROR;
         }
@@ -1028,7 +1018,7 @@ int main(int argc, char *argv[])
             print_matrix(result, n, n);
         else
         {
-            print_error();
+            printf("%s\n", GENERIC_ERROR_MSG);
             free_matrix(datapoints);
             return ERROR;
         }
