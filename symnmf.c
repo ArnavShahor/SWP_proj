@@ -741,12 +741,42 @@ int main(int argc, char *argv[])
         }
 
         /* Initialize the matrix A with your values */
-        A_values[0][0] = 0; A_values[0][1] = 1; A_values[0][2] = 0; A_values[0][3] = 0; A_values[0][4] = 1; A_values[0][5] = 0;
-        A_values[1][0] = 1; A_values[1][1] = 0; A_values[1][2] = 1; A_values[1][3] = 0; A_values[1][4] = 1; A_values[1][5] = 0;
-        A_values[2][0] = 0; A_values[2][1] = 1; A_values[2][2] = 0; A_values[2][3] = 1; A_values[2][4] = 0; A_values[2][5] = 0;
-        A_values[3][0] = 0; A_values[3][1] = 0; A_values[3][2] = 1; A_values[3][3] = 0; A_values[3][4] = 1; A_values[3][5] = 1;
-        A_values[4][0] = 1; A_values[4][1] = 1; A_values[4][2] = 0; A_values[4][3] = 1; A_values[4][4] = 0; A_values[4][5] = 0;
-        A_values[5][0] = 0; A_values[5][1] = 0; A_values[5][2] = 0; A_values[5][3] = 1; A_values[5][4] = 0; A_values[5][5] = 0;
+        A_values[0][0] = 0;
+        A_values[0][1] = 1;
+        A_values[0][2] = 0;
+        A_values[0][3] = 0;
+        A_values[0][4] = 1;
+        A_values[0][5] = 0;
+        A_values[1][0] = 1;
+        A_values[1][1] = 0;
+        A_values[1][2] = 1;
+        A_values[1][3] = 0;
+        A_values[1][4] = 1;
+        A_values[1][5] = 0;
+        A_values[2][0] = 0;
+        A_values[2][1] = 1;
+        A_values[2][2] = 0;
+        A_values[2][3] = 1;
+        A_values[2][4] = 0;
+        A_values[2][5] = 0;
+        A_values[3][0] = 0;
+        A_values[3][1] = 0;
+        A_values[3][2] = 1;
+        A_values[3][3] = 0;
+        A_values[3][4] = 1;
+        A_values[3][5] = 1;
+        A_values[4][0] = 1;
+        A_values[4][1] = 1;
+        A_values[4][2] = 0;
+        A_values[4][3] = 1;
+        A_values[4][4] = 0;
+        A_values[4][5] = 0;
+        A_values[5][0] = 0;
+        A_values[5][1] = 0;
+        A_values[5][2] = 0;
+        A_values[5][3] = 1;
+        A_values[5][4] = 0;
+        A_values[5][5] = 0;
 
         for (i = 0; i < n; i++)
         {
@@ -1007,11 +1037,11 @@ int main(int argc, char *argv[])
             result = ddg_func(datapoints, n, d);
         else if (strcmp(goal, "norm") == 0)
             result = norm_func(datapoints, n, d);
-    else
-    {
-        printf("%s\n", GENERIC_ERROR_MSG);
-        free_matrix(datapoints);
-        return ERROR;
+        else
+        {
+            printf("%s\n", GENERIC_ERROR_MSG);
+            free_matrix(datapoints);
+            return ERROR;
         }
 
         if (result)
