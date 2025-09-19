@@ -10,7 +10,7 @@ def init_H(W, k):
     m = np.mean(W)
     upper_bound = 2 * np.sqrt(m / k)
     H = np.random.uniform(0, upper_bound, size=(n, k))
-    return H.tolist()
+    return H
 
 def format_output(matrix):
     """Format matrix output with 4 decimal places."""
