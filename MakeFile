@@ -12,7 +12,7 @@ all: $(TARGET)
  
 # Build the executable
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) -lm
  
 # Compile source files
 $(OBJECTS): $(SOURCES)
