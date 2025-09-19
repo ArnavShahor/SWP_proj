@@ -1,19 +1,12 @@
 import sys
 import numpy as np
 import symnmfmodule
+import pandas as pd
 
-def parse_data(filename):
-    """Parse data from CSV file."""
-    try:
-        data = np.loadtxt(filename, delimiter=',')
-        return data
-    except Exception:
-        print("An Error Has Occurred")
-        sys.exit(1)
+np.random.seed(1234)
 
 def initialize_H(W, n, k):
     """Initialize H matrix with random values."""
-    np.random.seed(1234)
     m = np.mean(W)
     upper_bound = 2 * np.sqrt(m / k)
     H = np.random.uniform(0, upper_bound, size=(n, k))
@@ -27,48 +20,44 @@ def format_output(matrix):
 
 def main():
     if len(sys.argv) != 4:
-        print("An Error Has Occurred")
-        sys.exit(1)
+       raise ValueError
 
-    try:
-        k = int(sys.argv[1])
-        goal = sys.argv[2]
-        filename = sys.argv[3]
-    except ValueError:
-        print("An Error Has Occurred")
-        sys.exit(1)
+    k = int(sys.argv[1])
+    goal = sys.argv[2]
+    filename = sys.argv[3]
 
     # Parse input data
-    data = parse_data(filename)
+    data = pd.read_csv(filename, delimiter=',', header=None)
     n = data.shape[0]
+
+    # Check if k < n
+    if k >= n:
+        raise ValueError
 
     # Convert to list for C module
     data_list = data.tolist()
+    
+    if goal == "sym":
+        result = symnmfmodule.sym(data_list)
+    elif goal == "ddg":
+        result = symnmfmodule.ddg(data_list)
+    elif goal == "norm":
+        result = symnmfmodule.norm(data_list)
+    elif goal == "symnmf":
+        # First compute W (normalized similarity matrix)
+        W = symnmfmodule.norm(data_list)
+        # Initialize H
+        H = initialize_H(W, n, k)
+        # Perform SymNMF
+        result = symnmfmodule.symnmf(H, W)
+    else:
+        raise ValueError
 
-    try:
-        if goal == "sym":
-            result = symnmfmodule.sym(data_list)
-        elif goal == "ddg":
-            result = symnmfmodule.ddg(data_list)
-        elif goal == "norm":
-            result = symnmfmodule.norm(data_list)
-        elif goal == "symnmf":
-            # First compute W (normalized similarity matrix)
-            W = symnmfmodule.norm(data_list)
-            # Initialize H
-            H = initialize_H(W, n, k)
-            # Perform SymNMF
-            result = symnmfmodule.symnmf(H, W)
-        else:
-            print("An Error Has Occurred")
-            sys.exit(1)
-
-        # Format and print output
-        format_output(result)
-
-    except Exception:
-        print("An Error Has Occurred")
-        sys.exit(1)
+    # Format and print output
+    format_output(result)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print("An Error Has Occurred")
