@@ -5,7 +5,7 @@ import pandas as pd
 
 np.random.seed(1234)
 
-def initialize_H(W, n, k):
+def init_H(W, n, k):
     """Initialize H matrix with random values."""
     m = np.mean(W)
     upper_bound = 2 * np.sqrt(m / k)
@@ -45,7 +45,7 @@ def main():
         # First compute W (normalized similarity matrix)
         W = symnmfmodule.norm(data_list)
         # Initialize H
-        H = initialize_H(W, n, k)
+        H = init_H(W, n, k)
         # Perform SymNMF
         result = symnmfmodule.symnmf(H, W)
     else:
