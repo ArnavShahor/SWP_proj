@@ -33,10 +33,8 @@ def main():
     # Check if k < n
     if not (1 < k < n):
         raise Exception()
-
     # Convert to list for C module
-    data_list = data.tolist()
-    
+    data_list = data.values.tolist()
     if goal == "sym":
         result = symnmfmodule.sym(data_list)
     elif goal == "ddg":
