@@ -20,7 +20,7 @@ def format_output(matrix):
 
 def main():
     if len(sys.argv) != 4:
-       raise ValueError
+       raise Exception()
 
     k = int(sys.argv[1])
     goal = sys.argv[2]
@@ -31,8 +31,8 @@ def main():
     n = data.shape[0]
 
     # Check if k < n
-    if k >= n:
-        raise ValueError
+    if not (1 < k < n):
+        raise Exception()
 
     # Convert to list for C module
     data_list = data.tolist()
@@ -51,7 +51,7 @@ def main():
         # Perform SymNMF
         result = symnmfmodule.symnmf(H, W)
     else:
-        raise ValueError
+        raise Exception()
 
     # Format and print output
     format_output(result)
