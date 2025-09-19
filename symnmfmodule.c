@@ -154,7 +154,7 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
     if (!H)
         return NULL;
 
-    matrix W = pymat_to_matrix(py_W, &n, &k);
+    matrix W = pymat_to_matrix(py_W, &n, &n);
     if (!W)
     {
         free_matrix(H);
