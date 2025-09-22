@@ -630,6 +630,7 @@ matrix symnmf_c(matrix H, matrix W, int n, int k)
         }
 
         norm = F_norm_squared(new_H, current_H, n, k);
+
         free_matrix(current_H);
         current_H = new_H;
 
