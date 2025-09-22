@@ -5,15 +5,12 @@ import pandas as pd
 
 def init_H(W, k):
     """Initialize H matrix with random values."""
-    print(f"DEBUG: init_H called with k={k}")
     np.random.seed(1234)
     n = len(W)
     W_array = np.array(W)
     m = np.mean(W_array)
     upper_bound = 2 * np.sqrt(m / k)
-    print(f"DEBUG: init_H - n={n}, mean(W)={m:.6f}, upper_bound={upper_bound:.6f}")
     H = np.random.uniform(0, upper_bound, size=(n, k))
-    print(f"DEBUG: init_H - Generated H with shape {H.shape}")
     return H.tolist()
 
 def format_output(matrix):
@@ -29,13 +26,10 @@ def main():
     k = int(sys.argv[1])
     goal = sys.argv[2]
     filename = sys.argv[3]
-    
-    print(f"DEBUG: Starting symnmf with k={k}, goal={goal}, filename={filename}")
 
     # Parse input data
     data = pd.read_csv(filename, delimiter=',', header=None)
     n = data.shape[0]
-    print(f"DEBUG: Loaded data with shape {data.shape} (n={n} datapoints)")
 
     # Check inputs
     if not (1 < k < n) or goal not in {"sym", "ddg", "norm", "symnmf"} or filename == "":
@@ -44,38 +38,23 @@ def main():
 
     # Convert to list for C module
     data_list = data.values.tolist()
-    print(f"DEBUG: Converted data to list format")
 
     if goal == "sym":
-        print("DEBUG: Computing similarity matrix")
         result = symnmfmodule.sym(data_list)
     elif goal == "ddg":
-        print("DEBUG: Computing diagonal degree matrix")
         result = symnmfmodule.ddg(data_list)
     elif goal == "norm":
-        print("DEBUG: Computing normalized similarity matrix")
         result = symnmfmodule.norm(data_list)
     elif goal == "symnmf":
-        print("DEBUG: Starting SymNMF algorithm")
         # First compute W (normalized similarity matrix)
-        print("DEBUG: Step 1 - Computing normalized similarity matrix W")
         W = symnmfmodule.norm(data_list)
-        W_array = np.array(W)
-        print(f"DEBUG: W matrix shape: {W_array.shape}")
-        print(f"DEBUG: W matrix stats - min: {W_array.min():.6f}, max: {W_array.max():.6f}, mean: {W_array.mean():.6f}")
-        
         # Initialize H
-        print("DEBUG: Step 2 - Initializing H matrix")
         H = init_H(W, k)
-        
         # Perform SymNMF
-        print("DEBUG: Step 3 - Running SymNMF algorithm")
         result = symnmfmodule.symnmf(H, W)
-        result_array = np.array(result)
     else:
         raise Exception()
 
-    print("DEBUG: Formatting and printing final output")
     # Format and print output
     format_output(result)
 

@@ -74,59 +74,28 @@ static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d
  */
 static matrix pymat_to_matrix(PyObject *py_matrix, int *n, int *d)
 {
-    printf("DEBUG MODULE: pymat_to_matrix called\n");
-    
-    if (!PyList_Check(py_matrix))
-    {
-        printf("DEBUG MODULE: Input is not a Python list\n");
-        return NULL;
-    }
-
     *n = PyObject_Length(py_matrix);
     if (*n < 0)
-    {
-        printf("DEBUG MODULE: Failed to get length of Python matrix\n");
         return NULL;
-    }
-    printf("DEBUG MODULE: Matrix has %d rows\n", *n);
 
     PyObject *first_row = PyList_GetItem(py_matrix, 0);
     if (first_row == NULL)
-    {
-        printf("DEBUG MODULE: Failed to get first row\n");
         return NULL;
-    }
-
-    if (!PyList_Check(first_row))
-    {
-        printf("DEBUG MODULE: First row is not a Python list\n");
-        return NULL;
-    }
 
     *d = PyObject_Length(first_row);
     if (*d < 0)
-    {
-        printf("DEBUG MODULE: Failed to get length of first row\n");
         return NULL;
-    }
-    printf("DEBUG MODULE: Matrix has %d columns\n", *d);
 
     matrix mat = alloc_matrix(*n, *d);
     if (mat == NULL)
-    {
-        printf("DEBUG MODULE: Failed to allocate matrix\n");
         return NULL;
-    }
-    printf("DEBUG MODULE: Matrix allocated successfully\n");
 
     if (fill_matrix_from_python(mat, py_matrix, *n, *d) != 0)
     {
-        printf("DEBUG MODULE: Failed to fill matrix from Python data\n");
         free_matrix(mat);
         return NULL;
     }
 
-    printf("DEBUG MODULE: Matrix filled successfully\n");
     return mat;
 }
 
@@ -178,59 +147,31 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
 {
     PyObject *py_H, *py_W;
 
-    printf("DEBUG MODULE: symnmf_wrapper called\n");
-
     if (!PyArg_ParseTuple(args, "OO", &py_H, &py_W))
-    {
-        printf("DEBUG MODULE: Failed to parse arguments\n");
         return NULL;
-    }
-
-    printf("DEBUG MODULE: Arguments parsed successfully\n");
 
     int n, k;
     matrix H = pymat_to_matrix(py_H, &n, &k);
     if (!H)
-    {
-        printf("DEBUG MODULE: Failed to convert H matrix from Python\n");
         return NULL;
-    }
-
-    printf("DEBUG MODULE: H matrix converted - size %dx%d\n", n, k);
 
     matrix W = pymat_to_matrix(py_W, &n, &n);
     if (!W)
     {
-        printf("DEBUG MODULE: Failed to convert W matrix from Python\n");
         free_matrix(H);
         return NULL;
     }
-
-    printf("DEBUG MODULE: W matrix converted - size %dx%d\n", n, n);
-    printf("DEBUG MODULE: Calling symnmf_c function\n");
 
     matrix result = symnmf_c(H, W, n, k);
     free_matrix(H);
     free_matrix(W);
 
     if (!result)
-    {
-        printf("DEBUG MODULE: symnmf_c returned NULL\n");
         return NULL;
-    }
-
-    printf("DEBUG MODULE: symnmf_c completed, converting result to Python\n");
 
     PyObject *py_result = matrix_to_pymat(result, n, k);
     free_matrix(result);
 
-    if (!py_result)
-    {
-        printf("DEBUG MODULE: Failed to convert result to Python format\n");
-        return NULL;
-    }
-
-    printf("DEBUG MODULE: symnmf_wrapper completed successfully\n");
     return py_result;
 }
 
