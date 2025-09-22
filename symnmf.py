@@ -73,7 +73,27 @@ def main():
         
         # Perform SymNMF
         print("DEBUG: Step 3 - Running SymNMF algorithm")
-        result = symnmfmodule.symnmf(H, W)
+        print(f"DEBUG: H type before symnmf call: {type(H)}")
+        print(f"DEBUG: W type before symnmf call: {type(W)}")
+        
+        # Convert H to Python list if it's a NumPy array
+        if isinstance(H, np.ndarray):
+            print("DEBUG: Converting H from NumPy array to Python list")
+            H_list = H.tolist()
+        else:
+            print("DEBUG: H is already a Python list")
+            H_list = H
+            
+        print("DEBUG: About to call symnmfmodule.symnmf")
+        try:
+            result = symnmfmodule.symnmf(H_list, W)
+            print("DEBUG: symnmfmodule.symnmf returned successfully")
+        except Exception as e:
+            print(f"DEBUG: Exception in symnmfmodule.symnmf: {e}")
+            print(f"DEBUG: Exception type: {type(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
         result_array = np.array(result)
         print(f"DEBUG: Final result shape: {result_array.shape}")
         print(f"DEBUG: Final result stats - min: {result_array.min():.6f}, max: {result_array.max():.6f}, mean: {result_array.mean():.6f}")

@@ -43,48 +43,23 @@ PyMODINIT_FUNC PyInit_symnmfmodule(void)
  */
 static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d)
 {
-    printf("DEBUG MODULE: fill_matrix_from_python called with n=%d, d=%d\n", n, d);
-    
     for (int i = 0; i < n; i++)
     {
         PyObject *row = PyList_GetItem(py_matrix, i);
         if (row == NULL)
-        {
-            printf("DEBUG MODULE: Failed to get row %d\n", i);
             return -1;
-        }
-
-        if (!PyList_Check(row))
-        {
-            printf("DEBUG MODULE: Row %d is not a Python list\n", i);
-            return -1;
-        }
 
         for (int j = 0; j < d; j++)
         {
             PyObject *coord = PyList_GetItem(row, j);
-            if (coord == NULL)
-            {
-                printf("DEBUG MODULE: Failed to get element [%d][%d]\n", i, j);
-                return -1;
-            }
-
             if (!PyNumber_Check(coord))
-            {
-                printf("DEBUG MODULE: Element [%d][%d] is not a number\n", i, j);
                 return -1;
-            }
 
             mat[i][j] = PyFloat_AsDouble(coord);
             if (PyErr_Occurred())
-            {
-                printf("DEBUG MODULE: Failed to convert element [%d][%d] to double\n", i, j);
-                PyErr_Print();
                 return -1;
-            }
         }
     }
-    printf("DEBUG MODULE: fill_matrix_from_python completed successfully\n");
     return 0;
 }
 
