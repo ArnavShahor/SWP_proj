@@ -4,7 +4,16 @@ import symnmfmodule
 import pandas as pd
 
 def init_H(W, k):
-    """Initialize H matrix with random values."""
+    """
+    Initialize H matrix for SymNMF with random values bounded by theoretical upper limit.
+
+    Args:
+        W: Normalized similarity matrix as a 2D list
+        k: Number of clusters
+
+    Returns:
+        numpy.ndarray: Initialized H matrix of shape (n, k) with random values
+    """
     np.random.seed(1234)
     n = len(W)
     W_array = np.array(W)
@@ -14,12 +23,34 @@ def init_H(W, k):
     return H
 
 def format_output(matrix):
-    """Format matrix output with 4 decimal places."""
+    """
+    Format and print matrix with 4 decimal places, comma-separated values.
+
+    Args:
+        matrix: 2D list or array to be formatted and printed
+
+    Returns:
+        None: Prints formatted matrix to stdout
+    """
     for row in matrix:
         formatted_row = ','.join(f"{val:.4f}" for val in row)
         print(formatted_row)
 
 def main():
+    """
+    Main function to execute SymNMF algorithm based on command line arguments.
+
+    Processes input data and performs one of four operations: sym, ddg, norm, or symnmf.
+    Validates input parameters and handles exceptions.
+
+    Args:
+        sys.argv[1]: Number of clusters k (integer)
+        sys.argv[2]: Goal operation ("sym", "ddg", "norm", or "symnmf")
+        sys.argv[3]: Input CSV filename
+
+    Returns:
+        None: Prints results to stdout or error message on failure
+    """
     if len(sys.argv) != 4:
         raise Exception()
 
