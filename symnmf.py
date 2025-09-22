@@ -36,17 +36,37 @@ def format_output(matrix):
         formatted_row = ','.join(f"{val:.4f}" for val in row)
         print(formatted_row)
 
+def execute_goal(goal, data_list, k):
+    """
+    Execute the specified goal operation on the data.
+
+    Args:
+        goal: Goal operation ("sym", "ddg", "norm", or "symnmf")
+        data_list: Input data as list of lists
+        k: Number of clusters
+
+    Returns:
+        Result matrix from the specified operation
+
+    Raises:
+        Exception: If goal is invalid
+    """
+    if goal == "sym":
+        return symnmfmodule.sym(data_list)
+    elif goal == "ddg":
+        return symnmfmodule.ddg(data_list)
+    elif goal == "norm":
+        return symnmfmodule.norm(data_list)
+    elif goal == "symnmf":
+        W = symnmfmodule.norm(data_list)
+        H = init_H(W, k).tolist()
+        return symnmfmodule.symnmf(H, W)
+    else:
+        raise Exception()
+
 def main():
     """
     Main function to execute SymNMF algorithm based on command line arguments.
-
-    Processes input data and performs one of four operations: sym, ddg, norm, or symnmf.
-    Validates input parameters and handles exceptions.
-
-    Args:
-        sys.argv[1]: Number of clusters k (integer)
-        sys.argv[2]: Goal operation ("sym", "ddg", "norm", or "symnmf")
-        sys.argv[3]: Input CSV filename
 
     Returns:
         None: Prints results to stdout or error message on failure
@@ -58,7 +78,6 @@ def main():
     goal = sys.argv[2]
     filename = sys.argv[3]
 
-    # Parse input data
     data = pd.read_csv(filename, delimiter=',', header=None)
     n = data.shape[0]
 
@@ -67,26 +86,8 @@ def main():
         if not (k == 0 and goal != "symnmf") or filename == "":
             raise Exception()
 
-    # Convert to list for C module
     data_list = data.values.tolist()
-
-    if goal == "sym":
-        result = symnmfmodule.sym(data_list)
-    elif goal == "ddg":
-        result = symnmfmodule.ddg(data_list)
-    elif goal == "norm":
-        result = symnmfmodule.norm(data_list)
-    elif goal == "symnmf":
-        # First compute W (normalized similarity matrix)
-        W = symnmfmodule.norm(data_list)
-        # Initialize H
-        H = init_H(W, k).tolist()
-        # Perform SymNMF
-        result = symnmfmodule.symnmf(H, W)
-    else:
-        raise Exception()
-
-    # Format and print output
+    result = execute_goal(goal, data_list, k)
     format_output(result)
 
 if __name__ == "__main__":
