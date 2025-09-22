@@ -30,9 +30,10 @@ def main():
     data = pd.read_csv(filename, delimiter=',', header=None)
     n = data.shape[0]
 
-    # Check if k < n
-    if not (1 < k < n):
-        raise Exception()
+    # Check inputs
+    if not (1 < k < n) or goal not in {"sym", "ddg", "norm", "symnmf"} or filename == "":
+        if not (k == 0 and goal != "symnmf") or filename == "":
+            raise Exception()
 
     # Convert to list for C module
     data_list = data.values.tolist()
