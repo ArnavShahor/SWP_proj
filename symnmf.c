@@ -62,9 +62,7 @@ void free_matrix(matrix mat)
 int count_dimensions(const char *filename)
 {
     FILE *file;
-    int count;
-    int c;
-    int found_digit;
+    int count, found_digit, c;
 
     file = fopen(filename, "r");
     if (!file)
@@ -127,6 +125,37 @@ int count_lines(const char *filename)
 }
 
 /**
+ * Reads matrix data from an open file.
+ *
+ * @param file Open file pointer.
+ * @param result Pre-allocated matrix to fill.
+ * @param n Number of rows.
+ * @param d Number of columns.
+ *
+ * @return 1 on success, 0 on failure.
+ */
+int read_matrix_data(FILE *file, matrix result, int n, int d)
+{
+    int i, j;
+    
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < d; j++)
+        {
+            double value;
+            char delim;
+            
+            if (fscanf(file, "%lf%c", &value, &delim) != 2 || 
+                !(delim == ',' || delim == '\n'))
+                return 0;
+            
+            result[i][j] = value;
+        }
+    }
+    return 1;
+}
+
+/**
  * Parses a CSV file and creates a matrix from its contents.
  *
  * @param filename The path to the CSV file.
@@ -139,7 +168,6 @@ matrix parse_file(const char *filename, int *n, int *d)
 {
     matrix result;
     FILE *file;
-    int i, j;
 
     *d = count_dimensions(filename);
     *n = count_lines(filename);
@@ -158,22 +186,11 @@ matrix parse_file(const char *filename, int *n, int *d)
         return NULL;
     }
 
-    for (i = 0; i < *n; i++)
+    if (!read_matrix_data(file, result, *n, *d))
     {
-        for (j = 0; j < *d; j++)
-        {
-            double value;
-            char delim;
-
-            if (fscanf(file, "%lf%c", &value, &delim) != 2 || !(delim == ',' || delim == '\n'))
-            {
-                fclose(file);
-                free_matrix(result);
-                return NULL;
-            }
-
-            result[i][j] = value;
-        }
+        fclose(file);
+        free_matrix(result);
+        return NULL;
     }
 
     fclose(file);
@@ -675,6 +692,28 @@ void print_matrix(matrix mat, int rows, int cols)
     }
 }
 
+/**
+ * Executes the specified goal algorithm on datapoints.
+ *
+ * @param goal The algorithm to execute ("sym", "ddg", or "norm").
+ * @param datapoints The input data matrix.
+ * @param n Number of datapoints.
+ * @param d Dimensionality of datapoints.
+ *
+ * @return The result matrix, or NULL if goal is invalid or computation fails.
+ */
+matrix execute_goal(const char *goal, matrix datapoints, int n, int d)
+{
+    if (strcmp(goal, "sym") == 0)
+        return sym_c(datapoints, n, d);
+    else if (strcmp(goal, "ddg") == 0)
+        return ddg_c(datapoints, n, d);
+    else if (strcmp(goal, "norm") == 0)
+        return norm_c(datapoints, n, d);
+    else
+        return NULL;
+}
+
 int main(int argc, char *argv[])
 {
     char *goal;
@@ -699,30 +738,15 @@ int main(int argc, char *argv[])
         return ERROR;
     }
 
-    result = NULL;
-
-    if (strcmp(goal, "sym") == 0)
-        result = sym_c(datapoints, n, d);
-    else if (strcmp(goal, "ddg") == 0)
-        result = ddg_c(datapoints, n, d);
-    else if (strcmp(goal, "norm") == 0)
-        result = norm_c(datapoints, n, d);
-    else
+    result = execute_goal(goal, datapoints, n, d);
+    if (!result)
     {
         printf("%s\n", GENERIC_ERROR_MSG);
         free_matrix(datapoints);
         return ERROR;
     }
 
-    if (result)
-        print_matrix(result, n, n);
-    else
-    {
-        printf("%s\n", GENERIC_ERROR_MSG);
-        free_matrix(datapoints);
-        return ERROR;
-    }
-
+    print_matrix(result, n, n);
     free_matrix(datapoints);
     free_matrix(result);
     return SUCCESS;

@@ -23,7 +23,11 @@ void free_matrix(matrix mat);
 /* File I/O functions */
 int count_dimensions(const char *filename);
 int count_lines(const char *filename);
+int read_matrix_data(FILE *file, matrix result, int n, int d);
 matrix parse_file(const char *filename, int *n, int *d);
+
+/* Main program helpers */
+matrix execute_goal(const char *goal, matrix datapoints, int n, int d);
 
 /* Utility functions */
 double euclidean_distance_squared(double *p1, double *p2, int d);
