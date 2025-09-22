@@ -4,7 +4,7 @@
 #include "symnmf.h"
 
 /**
- * Allocates memory for a 2D matrix with specified dimensions.
+ * Allocates memory for a 2D matrix with specified dimnomsions.
  *
  * @param rows The number of rows in the matrix.
  * @param cols The number of columns in the matrix.
@@ -589,7 +589,12 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 
     for (i = 0; i < n; i++)
         for (j = 0; j < k; j++)
-            new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
+        {
+            if (denominator[i][j] == 0.0)
+                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / EPSILON));
+            else
+                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
+        }
 
     free_matrix(numerator);
     free_matrix(denominator);
