@@ -11,7 +11,7 @@ def init_H(W, k):
     m = np.mean(W_array)
     upper_bound = 2 * np.sqrt(m / k)
     H = np.random.uniform(0, upper_bound, size=(n, k))
-    return H.tolist()
+    return H
 
 def format_output(matrix):
     """Format matrix output with 4 decimal places."""
@@ -49,7 +49,7 @@ def main():
         # First compute W (normalized similarity matrix)
         W = symnmfmodule.norm(data_list)
         # Initialize H
-        H = init_H(W, k)
+        H = init_H(W, k).tolist()
         # Perform SymNMF
         result = symnmfmodule.symnmf(H, W)
     else:
