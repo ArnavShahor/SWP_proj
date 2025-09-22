@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 #include "symnmf.h"
 
@@ -588,7 +589,17 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 
     for (i = 0; i < n; i++)
         for (j = 0; j < k; j++)
-            new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
+        {
+            if (denominator[i][j] == 0.0)
+            {
+                printf("DEBUG C: Warning - denominator is zero at [%d][%d], using small epsilon\n", i, j);
+                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / EPSILON));
+            }
+            else
+            {
+                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
+            }
+        }
 
     free_matrix(numerator);
     free_matrix(denominator);
@@ -613,31 +624,49 @@ matrix symnmf_c(matrix H, matrix W, int n, int k)
     matrix new_H;
     double norm;
 
+    printf("DEBUG C: symnmf_c called with n=%d, k=%d\n", n, k);
+
     current_H = alloc_matrix(n, k);
     if (!current_H)
+    {
+        printf("DEBUG C: Failed to allocate current_H matrix\n");
         return NULL;
+    }
 
     copy_matrix(H, current_H, n, k);
+    printf("DEBUG C: Copied initial H matrix\n");
 
     for (iter = 0; iter < MAX_ITERATIONS; iter++)
     {
+        printf("DEBUG C: Starting iteration %d\n", iter);
+        
         new_H = update_H_iteration(current_H, W, n, k);
         if (!new_H)
         {
+            printf("DEBUG C: Failed to update H in iteration %d\n", iter);
             free_matrix(current_H);
             return NULL;
         }
 
         norm = F_norm_squared(new_H, current_H, n, k);
+        printf("DEBUG C: Iteration %d - F norm squared: %.8f\n", iter, norm);
+        
         free_matrix(current_H);
         current_H = new_H;
 
         if (norm < EPSILON)
         {
+            printf("DEBUG C: Converged after %d iterations (norm=%.8f < EPSILON=%.8f)\n", iter, norm, EPSILON);
             break;
         }
     }
 
+    if (iter == MAX_ITERATIONS)
+    {
+        printf("DEBUG C: Reached maximum iterations (%d) without convergence\n", MAX_ITERATIONS);
+    }
+
+    printf("DEBUG C: symnmf_c completed successfully\n");
     return current_H;
 }
 

@@ -1,5 +1,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <stdio.h>
 #include "symnmf.h"
 
 static PyObject *symnmf_wrapper(PyObject *self, PyObject *args);
@@ -146,31 +147,59 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args)
 {
     PyObject *py_H, *py_W;
 
+    printf("DEBUG MODULE: symnmf_wrapper called\n");
+
     if (!PyArg_ParseTuple(args, "OO", &py_H, &py_W))
+    {
+        printf("DEBUG MODULE: Failed to parse arguments\n");
         return NULL;
+    }
+
+    printf("DEBUG MODULE: Arguments parsed successfully\n");
 
     int n, k;
     matrix H = pymat_to_matrix(py_H, &n, &k);
     if (!H)
+    {
+        printf("DEBUG MODULE: Failed to convert H matrix from Python\n");
         return NULL;
+    }
+
+    printf("DEBUG MODULE: H matrix converted - size %dx%d\n", n, k);
 
     matrix W = pymat_to_matrix(py_W, &n, &n);
     if (!W)
     {
+        printf("DEBUG MODULE: Failed to convert W matrix from Python\n");
         free_matrix(H);
         return NULL;
     }
+
+    printf("DEBUG MODULE: W matrix converted - size %dx%d\n", n, n);
+    printf("DEBUG MODULE: Calling symnmf_c function\n");
 
     matrix result = symnmf_c(H, W, n, k);
     free_matrix(H);
     free_matrix(W);
 
     if (!result)
+    {
+        printf("DEBUG MODULE: symnmf_c returned NULL\n");
         return NULL;
+    }
+
+    printf("DEBUG MODULE: symnmf_c completed, converting result to Python\n");
 
     PyObject *py_result = matrix_to_pymat(result, n, k);
     free_matrix(result);
 
+    if (!py_result)
+    {
+        printf("DEBUG MODULE: Failed to convert result to Python format\n");
+        return NULL;
+    }
+
+    printf("DEBUG MODULE: symnmf_wrapper completed successfully\n");
     return py_result;
 }
 
