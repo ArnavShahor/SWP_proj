@@ -73,6 +73,7 @@ def main():
         
         # Perform SymNMF
         print("DEBUG: Step 3 - Running SymNMF algorithm")
+<<<<<<< Updated upstream
         print(f"DEBUG: H type before symnmf call: {type(H)}")
         print(f"DEBUG: W type before symnmf call: {type(W)}")
         
@@ -94,6 +95,9 @@ def main():
             import traceback
             traceback.print_exc()
             raise
+=======
+        result = symnmfmodule.symnmf(H.tolist(), W.tolist())
+>>>>>>> Stashed changes
         result_array = np.array(result)
         print(f"DEBUG: Final result shape: {result_array.shape}")
         print(f"DEBUG: Final result stats - min: {result_array.min():.6f}, max: {result_array.max():.6f}, mean: {result_array.mean():.6f}")
