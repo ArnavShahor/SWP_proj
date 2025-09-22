@@ -70,7 +70,6 @@ int count_dimensions(const char *filename)
 
     count = 0;
     found_digit = 0;
-
     while ((c = fgetc(file)) != EOF)
     {
         if (c == ',' || c == '\n')
@@ -84,11 +83,8 @@ int count_dimensions(const char *filename)
                 break;
         }
         else if ((c >= '0' && c <= '9') || c == '.' || c == '-')
-        {
             found_digit = 1;
-        }
     }
-
     if (found_digit)
         count++;
 
@@ -170,7 +166,6 @@ matrix parse_file(const char *filename, int *n, int *d)
 
     *d = count_dimensions(filename);
     *n = count_lines(filename);
-
     if (*d <= 0 || *n <= 0)
         return NULL;
 
@@ -191,7 +186,6 @@ matrix parse_file(const char *filename, int *n, int *d)
         free_matrix(result);
         return NULL;
     }
-
     fclose(file);
     return result;
 }
@@ -585,22 +579,18 @@ matrix compute_H_denominator(matrix H, int n, int k)
  */
 matrix update_H_iteration(matrix H, matrix W, int n, int k)
 {
-    matrix numerator;
-    matrix denominator;
-    matrix new_H;
+    matrix numerator, denominator, new_H;
     int i, j;
-
+    
     numerator = matrix_multiply(W, H, n, n, k);
     if (!numerator)
         return NULL;
-
     denominator = compute_H_denominator(H, n, k);
     if (!denominator)
     {
         free_matrix(numerator);
         return NULL;
     }
-
     new_H = alloc_matrix(n, k);
     if (!new_H)
     {
@@ -631,9 +621,8 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 matrix symnmf_c(matrix H, matrix W, int n, int k)
 {
     /* TODO use origin H instead of copy */
-    matrix current_H;
+    matrix current_H, new_H;
     int iter;
-    matrix new_H;
     double norm;
 
     current_H = alloc_matrix(n, k);
@@ -641,7 +630,6 @@ matrix symnmf_c(matrix H, matrix W, int n, int k)
         return NULL;
 
     copy_matrix(H, current_H, n, k);
-
     for (iter = 0; iter < MAX_ITERATIONS; iter++)
     {
         new_H = update_H_iteration(current_H, W, n, k);
@@ -650,18 +638,13 @@ matrix symnmf_c(matrix H, matrix W, int n, int k)
             free_matrix(current_H);
             return NULL;
         }
-
         norm = F_norm_squared(new_H, current_H, n, k);
-
         free_matrix(current_H);
         current_H = new_H;
 
         if (norm < EPSILON)
-        {
             break;
-        }
     }
-
     return current_H;
 }
 
