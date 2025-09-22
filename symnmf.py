@@ -14,7 +14,7 @@ def init_H(W, k):
     print(f"DEBUG: init_H - n={n}, mean(W)={m:.6f}, upper_bound={upper_bound:.6f}")
     H = np.random.uniform(0, upper_bound, size=(n, k))
     print(f"DEBUG: init_H - Generated H with shape {H.shape}")
-    return H
+    return H.tolist()
 
 def format_output(matrix):
     """Format matrix output with 4 decimal places."""
@@ -67,40 +67,11 @@ def main():
         # Initialize H
         print("DEBUG: Step 2 - Initializing H matrix")
         H = init_H(W, k)
-        H_array = np.array(H)
-        print(f"DEBUG: H matrix shape: {H_array.shape}")
-        print(f"DEBUG: H matrix stats - min: {H_array.min():.6f}, max: {H_array.max():.6f}, mean: {H_array.mean():.6f}")
         
         # Perform SymNMF
         print("DEBUG: Step 3 - Running SymNMF algorithm")
-<<<<<<< Updated upstream
-        print(f"DEBUG: H type before symnmf call: {type(H)}")
-        print(f"DEBUG: W type before symnmf call: {type(W)}")
-        
-        # Convert H to Python list if it's a NumPy array
-        if isinstance(H, np.ndarray):
-            print("DEBUG: Converting H from NumPy array to Python list")
-            H_list = H.tolist()
-        else:
-            print("DEBUG: H is already a Python list")
-            H_list = H
-            
-        print("DEBUG: About to call symnmfmodule.symnmf")
-        try:
-            result = symnmfmodule.symnmf(H_list, W)
-            print("DEBUG: symnmfmodule.symnmf returned successfully")
-        except Exception as e:
-            print(f"DEBUG: Exception in symnmfmodule.symnmf: {e}")
-            print(f"DEBUG: Exception type: {type(e)}")
-            import traceback
-            traceback.print_exc()
-            raise
-=======
-        result = symnmfmodule.symnmf(H.tolist(), W.tolist())
->>>>>>> Stashed changes
+        result = symnmfmodule.symnmf(H, W)
         result_array = np.array(result)
-        print(f"DEBUG: Final result shape: {result_array.shape}")
-        print(f"DEBUG: Final result stats - min: {result_array.min():.6f}, max: {result_array.max():.6f}, mean: {result_array.mean():.6f}")
     else:
         raise Exception()
 
