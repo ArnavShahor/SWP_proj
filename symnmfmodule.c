@@ -43,23 +43,48 @@ PyMODINIT_FUNC PyInit_symnmfmodule(void)
  */
 static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d)
 {
+    printf("DEBUG MODULE: fill_matrix_from_python called with n=%d, d=%d\n", n, d);
+    
     for (int i = 0; i < n; i++)
     {
         PyObject *row = PyList_GetItem(py_matrix, i);
         if (row == NULL)
+        {
+            printf("DEBUG MODULE: Failed to get row %d\n", i);
             return -1;
+        }
+
+        if (!PyList_Check(row))
+        {
+            printf("DEBUG MODULE: Row %d is not a Python list\n", i);
+            return -1;
+        }
 
         for (int j = 0; j < d; j++)
         {
             PyObject *coord = PyList_GetItem(row, j);
-            if (!PyNumber_Check(coord))
+            if (coord == NULL)
+            {
+                printf("DEBUG MODULE: Failed to get element [%d][%d]\n", i, j);
                 return -1;
+            }
+
+            if (!PyNumber_Check(coord))
+            {
+                printf("DEBUG MODULE: Element [%d][%d] is not a number\n", i, j);
+                return -1;
+            }
 
             mat[i][j] = PyFloat_AsDouble(coord);
             if (PyErr_Occurred())
+            {
+                printf("DEBUG MODULE: Failed to convert element [%d][%d] to double\n", i, j);
+                PyErr_Print();
                 return -1;
+            }
         }
     }
+    printf("DEBUG MODULE: fill_matrix_from_python completed successfully\n");
     return 0;
 }
 
@@ -74,28 +99,59 @@ static int fill_matrix_from_python(matrix mat, PyObject *py_matrix, int n, int d
  */
 static matrix pymat_to_matrix(PyObject *py_matrix, int *n, int *d)
 {
+    printf("DEBUG MODULE: pymat_to_matrix called\n");
+    
+    if (!PyList_Check(py_matrix))
+    {
+        printf("DEBUG MODULE: Input is not a Python list\n");
+        return NULL;
+    }
+
     *n = PyObject_Length(py_matrix);
     if (*n < 0)
+    {
+        printf("DEBUG MODULE: Failed to get length of Python matrix\n");
         return NULL;
+    }
+    printf("DEBUG MODULE: Matrix has %d rows\n", *n);
 
     PyObject *first_row = PyList_GetItem(py_matrix, 0);
     if (first_row == NULL)
+    {
+        printf("DEBUG MODULE: Failed to get first row\n");
         return NULL;
+    }
+
+    if (!PyList_Check(first_row))
+    {
+        printf("DEBUG MODULE: First row is not a Python list\n");
+        return NULL;
+    }
 
     *d = PyObject_Length(first_row);
     if (*d < 0)
+    {
+        printf("DEBUG MODULE: Failed to get length of first row\n");
         return NULL;
+    }
+    printf("DEBUG MODULE: Matrix has %d columns\n", *d);
 
     matrix mat = alloc_matrix(*n, *d);
     if (mat == NULL)
+    {
+        printf("DEBUG MODULE: Failed to allocate matrix\n");
         return NULL;
+    }
+    printf("DEBUG MODULE: Matrix allocated successfully\n");
 
     if (fill_matrix_from_python(mat, py_matrix, *n, *d) != 0)
     {
+        printf("DEBUG MODULE: Failed to fill matrix from Python data\n");
         free_matrix(mat);
         return NULL;
     }
 
+    printf("DEBUG MODULE: Matrix filled successfully\n");
     return mat;
 }
 

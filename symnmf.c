@@ -589,17 +589,7 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 
     for (i = 0; i < n; i++)
         for (j = 0; j < k; j++)
-        {
-            if (denominator[i][j] == 0.0)
-            {
-                printf("DEBUG C: Warning - denominator is zero at [%d][%d], using small epsilon\n", i, j);
-                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / EPSILON));
-            }
-            else
-            {
-                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
-            }
-        }
+            new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
 
     free_matrix(numerator);
     free_matrix(denominator);
