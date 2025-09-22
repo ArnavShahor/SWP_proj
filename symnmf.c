@@ -105,7 +105,6 @@ int count_dimensions(const char *filename)
  */
 int count_lines(const char *filename)
 {
-    /* TODO check that we don't miscount the last linebreaks as a point */
     FILE *file;
     int count;
     int c;
@@ -545,10 +544,10 @@ void copy_matrix(matrix src, matrix dst, int rows, int cols)
  */
 matrix compute_H_denominator(matrix H, int n, int k)
 {
-    /* TODO should we add epsilon to all of the entries? */
     matrix Ht;
     matrix H_Ht;
     matrix H_Ht_H;
+    int i, j;
 
     Ht = transpose_matrix(H, n, k);
     if (!Ht)
@@ -562,6 +561,12 @@ matrix compute_H_denominator(matrix H, int n, int k)
     }
 
     H_Ht_H = matrix_multiply(H_Ht, H, n, n, k);
+
+    /* Add epsilon squared only to zero entries to prevent division by zero */
+    for (i = 0; i < n; i++)
+        for (j = 0; j < k; j++)
+            if (H_Ht_H[i][j] == 0.0)
+                H_Ht_H[i][j] = EPSILON * EPSILON;
 
     free_matrix(Ht);
     free_matrix(H_Ht);
@@ -606,12 +611,7 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 
     for (i = 0; i < n; i++)
         for (j = 0; j < k; j++)
-        {
-            if (denominator[i][j] == 0.0)
-                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / EPSILON));
-            else
-                new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
-        }
+            new_H[i][j] = H[i][j] * (1 - BETA + BETA * (numerator[i][j] / denominator[i][j]));
 
     free_matrix(numerator);
     free_matrix(denominator);
