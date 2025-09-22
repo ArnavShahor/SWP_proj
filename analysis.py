@@ -1,10 +1,10 @@
 import math
 import sys
-import kmeans.py as kmeans
+import  kmeans
 import pandas as pd
 from sklearn import metrics
 import symnmfmodule
-import symnmf.py as symnmf
+import symnmf
 import numpy as np
 
 
@@ -27,14 +27,8 @@ def main():
 
     # running symnmf
     W = symnmfmodule.norm(points)
-    H = symnmf.initialize_H(W, N, K)
+    H = symnmf.init_H(W, K).tolist()
     H = symnmfmodule.symnmf(H, W)
-
-    # print("checking type")
-    # print(type(H[0]))
-    # print(type(H))
-    # print(H)
-    # print("checking type done")
 
     symnmf_clustering = np.argmax(np.array(H), axis=1)  # computing each datapoint's label
     symnmf_silhouette_score = metrics.silhouette_score(points, symnmf_clustering, metric='euclidean')
