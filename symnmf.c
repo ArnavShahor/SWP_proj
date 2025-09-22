@@ -620,26 +620,25 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
  */
 matrix symnmf_c(matrix H, matrix W, int n, int k)
 {
-    /* TODO use origin H instead of copy */
     matrix current_H, new_H;
     int iter;
     double norm;
 
-    current_H = alloc_matrix(n, k);
-    if (!current_H)
-        return NULL;
+    current_H = H;
 
-    copy_matrix(H, current_H, n, k);
     for (iter = 0; iter < MAX_ITERATIONS; iter++)
     {
         new_H = update_H_iteration(current_H, W, n, k);
         if (!new_H)
         {
-            free_matrix(current_H);
+            if (current_H != H)
+                free_matrix(current_H);
             return NULL;
         }
         norm = F_norm_squared(new_H, current_H, n, k);
-        free_matrix(current_H);
+
+        if (current_H != H)
+            free_matrix(current_H);
         current_H = new_H;
 
         if (norm < EPSILON)
