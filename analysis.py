@@ -10,6 +10,19 @@ import numpy as np
 
 
 def main():
+    """
+    Compare clustering performance between K-means and SymNMF algorithms using silhouette scores.
+
+    Reads data from a CSV file, performs both K-means and SymNMF clustering, and prints
+    their respective silhouette scores for comparison.
+
+    Args:
+        sys.argv[1]: Number of clusters (K)
+        sys.argv[2]: Input CSV filename
+
+    Returns:
+        int: Exit code (0 for success)
+    """
     K = int(sys.argv[1])
     filename = sys.argv[2]
 
