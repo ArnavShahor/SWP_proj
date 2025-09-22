@@ -132,18 +132,18 @@ int count_lines(const char *filename)
 int read_matrix_data(FILE *file, matrix result, int n, int d)
 {
     int i, j;
-    
+
     for (i = 0; i < n; i++)
     {
         for (j = 0; j < d; j++)
         {
             double value;
             char delim;
-            
-            if (fscanf(file, "%lf%c", &value, &delim) != 2 || 
+
+            if (fscanf(file, "%lf%c", &value, &delim) != 2 ||
                 !(delim == ',' || delim == '\n'))
                 return 0;
-            
+
             result[i][j] = value;
         }
     }
@@ -581,7 +581,7 @@ matrix update_H_iteration(matrix H, matrix W, int n, int k)
 {
     matrix numerator, denominator, new_H;
     int i, j;
-    
+
     numerator = matrix_multiply(W, H, n, n, k);
     if (!numerator)
         return NULL;
